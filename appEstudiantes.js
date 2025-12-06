@@ -5,37 +5,22 @@ import { supabase } from "./supebaseClient.js";
 //========================
 const form = document.getElementById("estudiante-form");
 const inputId = document.getElementById("idEstudiante");
-<<<<<<< HEAD
 const inputNombre= document.getElementById("nombre");
 const inputEmail = document.getElementById("email");
 const inputIdCarrera = document.getElementById("cmbCarreras").value;
-=======
-const inputNombre = document.getElementById("nombre");
-const inputCorreo = document.getElementById("correo");
-const inputIdCarrera = document.getElementById("idCarrera");
->>>>>>> 7f7d791af417182659562009aab50aa6db9fb928
 const btnSave = document.getElementById("btn-save");
 const btnCancel = document.getElementById("btn-cancel");
 const statusDiv = document.getElementById("status");
 let editando = false;
-<<<<<<< HEAD
 let listaEstudiantes = document.getElementById("tablaEstudiantes");
-=======
-let listaEstudiante = document.getElementById("lista");
->>>>>>> 7f7d791af417182659562009aab50aa6db9fb928
 //========================
 //Eventos
 //========================
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const nombre = inputNombre.value.trim();
-<<<<<<< HEAD
   const email = inputEmail.value.trim();
   const idCarrera = parseInt(document.getElementById("cmbCarreras").value);
-=======
-  const correo = inputCorreo.value.trim();
-  const idCarrera = parseInt(inputIdCarrera.value.trim());
->>>>>>> 7f7d791af417182659562009aab50aa6db9fb928
   if (editando) {
   } else {
     await crearEstudiante(nombre, correo, idCarrera);
@@ -44,7 +29,7 @@ form.addEventListener("submit", async (e) => {
   form.reset();
 });
 
-listaEstudiante.addEventListener("click", async (e) => {
+listaEstudiantes.addEventListener("click", async (e) => {
   if (e.target.classList.contains("btn-delete")) {
     const id = e.target.getAttribute("data-id");
     await eliminarEstudiante(id);
@@ -69,7 +54,6 @@ async function cargarEstudiantes() {
     console.error("Error al cargar estudiante:", error);
     return;
   }
-<<<<<<< HEAD
   listaEstudiantes.innerHTML = "";
  let tbody = document.getElementById("tablaEstudiantes");
     tbody.innerHTML = ""; // limpiar antes de cargar
@@ -99,14 +83,6 @@ async function cargarEstudiantes() {
 
         tbody.appendChild(tr);
     }
-=======
-  listaEstudiante.innerHTML = "";
-  estudiante.forEach((estudiante) => {
-    let li = document.createElement("li");
-    li.innerHTML = `${estudiante.nombre} - ${estudiante.correo} [${estudiante.idCarrera} ID Carrera] <button class="btn-delete" data-id="${estudiante.idEstudiante}">Eliminar</button>`;
-    listaEstudiante.appendChild(li);
-  });
->>>>>>> 7f7d791af417182659562009aab50aa6db9fb928
 }
 async function crearEstudiante(nombre, correo, idCarrera) {
   const estudiante = { nombre, correo, idCarrera };
@@ -127,7 +103,6 @@ async function eliminarEstudiante(idEstudiante) {
   }
 }
 
-<<<<<<< HEAD
 async function editarEstudiantes(codigo) {
 let { data: estudiante, error } = await supabase
     .from("Estudiantes")
@@ -194,6 +169,3 @@ let { data: carrera, error } = await supabase
 
 cargarEstudiantes();
 cargarCarreras();
-=======
-cargarEstudiante();
->>>>>>> 7f7d791af417182659562009aab50aa6db9fb928
