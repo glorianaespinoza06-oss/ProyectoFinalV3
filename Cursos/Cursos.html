@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+      crossorigin="anonymous" />
+    <link rel="stylesheet" href="../estilosPaginasSecundarias.css">
+    <title>Cursos</title>
+  </head>
+  <body>
+    <!-- encabezado de cuerpo de la pagina-->
+    <header>
+        <h1 id="main-tittle" class="title">Mantenimiento de Cursos</h1>
+      <!-- menu -->
+      <nav class="menu">
+        <ul>
+          <li id="elemento1"><a href="../Área_Principal.html">Inicio</a></li>
+          <li id="elemento1"><a href="../Login/Login.html">Salir</a></li>
+
+      </nav>
+    </header>
+    <h1 id="main-tittle" class="title">Listado de Cursos</h1>
+
+    <div class="container mt-5">
+      <!-- tabla -->
+     <table class="table table-striped table-bordered mt-3">
+    <thead class="table-dark">
+        <tr>
+            <th class="col-codigo">Código</th>
+            <th class="col-codigo">Nombre</th>
+            <th class="col-codigo">Créditos</th>
+            <th class="col-codigo">Acción</th>
+             <th class="col-codigo">Acción</th>
+        </tr>
+    </thead>
+    <tbody id="tablaCursos"></tbody>
+</table>
+      <br />
+      <!-- formulario -->
+      <form id="curso-form">
+        <h1 id="form-title" class="title2">Registrar</h1>
+        <br />
+        <input type="hidden" id="id" />
+
+        <label class="form-label" >Código</label>
+        <input type="text" id="codigo" class="form-control" required />
+
+        <label class="form-label">Nombre del curso</label>
+        <input type="text" id="nombre" class="form-control" required />
+
+        <label class="form-label">Créditos</label>
+        <input
+          type="number"
+          id="creditos"
+          class="form-control"
+          required
+          min="1"
+          max="5" />
+
+        <button type="submit" id="btn-save" class="btn btn-primary m-3">
+          Guardar
+        </button>
+        <button
+          type="button"
+          id="btn-cancel"
+          style="display: none"
+          class="btn btn-secondary">
+          Cancelar
+        </button>
+
+        <div id="status" class="mt-3"></div>
+      </form>
+    </div>
+    <script type="module" src="../appCursos.js"></script>
+  </body>
+</html>

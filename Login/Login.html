@@ -1,0 +1,75 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+      crossorigin="anonymous"
+    />
+        <title>Campus Virtual Académico</title>
+        <link rel="stylesheet" href="../estilos.css">
+
+    </head>
+    <body>
+        <main class="wrap" aria-label="Inicio de sesión CloudCampus">
+
+             <section class="card" aria-label="Formulario de autenticación">
+                <div class="brand" aria-hidden="true">
+                    <svg viewBox="0 0 64 64" fill="none"
+                        xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <path
+                            d="M21.5 29.5c-5.8 0-10.5 4.7-10.5 10.5S15.7 50.5 21.5 50.5h21c7 0 12.5-5.5 12.5-12.5S49.5 25.5 42.5 25.5c-.6 0-1.2 0-1.8.1C39 18.8 32.9 14 25.7 14 16.8 14 9.5 21.3 9.5 30.2"
+                            stroke="#0f172a" stroke-width="4"
+                            stroke-linecap="round" />
+                    </svg>
+                    <div class="brand-name">Proyecto Campus Virtual</div>
+                </div>
+                <div id="msgLogin"></div>
+                <div class="welcome">¡Bienvenido!</div>
+
+                <form id="formLogin">
+                    <div class="field">
+                        <label class="label" for="email">Correo
+                            electrónico</label>
+                        <div class="input">
+                            <input id="email" type="email" name="email"
+                                placeholder="hola@cloudcampus.com" required />
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label class="label" for="password">Contraseña</label>
+                        <div class="input">
+                            <input id="password" type="password" name="password"
+                                placeholder="••••••" required />
+                        </div>
+                        </div>
+
+                    </div>
+
+                    <button type="submit" class=" btn btn-primary">Ingresar</button>
+
+                    <div class="fineprint">
+                        Derechos Reservados 2025 · <a href="#">Términos y
+                            Condiciones</a> · <a href="#">Política de
+                            Privacidad</a>
+                    </div>
+                </form>
+            </section>
+<section class="hero2" aria-hidden="false">
+<div class="brand" aria-hidden="true">
+                    <div class="brand-name">Campo Virtual Académico</div>
+                </div>
+                <div class="welcome">¡Hola de nuevo!</div>
+                <section>
+                    <img src="../Imagenes/R.jpg" alt="Curso de Programación" width="656" height="299" class="imagen-centrada">
+                </section>
+</section>
+     <script type="module" src="../appUsuarios.js"></script>
+        </main>
+    </body>
+</html>
