@@ -64,12 +64,12 @@ async function cargarCursos() {
             <td>${curso.creditos}</td>
             <td>
                 <button class="btn btn-danger btn-sm btn-delete" data-id="${curso.codigo}">
-                    Eliminar
+                  <i class="fa-solid fa-trash-can"></i>
                 </button>
             </td>
              <td>
                 <button class="btn btn-primary btn-sm btn-edit" data-id="${curso.codigo}">
-                    Editar
+                  <i class="fa-solid fa-pencil"></i>
                 </button>
             </td>
         `;

@@ -70,12 +70,12 @@ let tbody = document.getElementById("tablaProfesores");
             <td>${profesor.celular}</td>
             <td>
                 <button class="btn btn-danger btn-sm btn-delete" data-id="${profesor.codigo}">
-                    Eliminar
+                 <i class="fa-solid fa-trash-can"></i>
                 </button>
             </td>
               <td>
                 <button class="btn btn-primary btn-sm btn-edit" data-id="${profesor.codigo}">
-                    Editar
+                  <i class="fa-solid fa-pencil">  </i>
                 </button>
             </td>
         `;
