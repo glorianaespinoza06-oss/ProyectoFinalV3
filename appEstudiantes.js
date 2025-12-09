@@ -93,6 +93,7 @@ async function crearEstudiante(nombre, email, celular, direccion) {
   if (error) {
     console.error("Error al crear estudiante:", error);
   }
+  alert("✅ Estudiante creado correctamente.");
   cargarEstudiantes();
 }
 

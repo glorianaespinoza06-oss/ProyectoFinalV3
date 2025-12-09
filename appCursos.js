@@ -83,13 +83,23 @@ async function crearCurso(codigo, nombre, creditos) {
   if (error) {
     console.error(error);
   }
+  alert("✅ Curso creado correctamente.");
   cargarCursos();
 }
 
 async function eliminarCursos(codigo) {
+   // Mostrar mensaje de confirmación
+  const confirmar = confirm("¿Está seguro de que desea eliminar este curso?");
+
+  if (!confirmar) {
+    return; // Si el usuario cancela, no se elimina
+  }
   let { error } = await supabase.from("Cursos").delete().eq("codigo", codigo);
   if (error) {
-    console.error(error);
+    console.error("Error al eliminar curso:", error);
+    alert("❌ Ocurrió un error al eliminar un curso.");
+  } else {
+    alert("✅ Curso eliminado correctamente.");
   }
 }
 

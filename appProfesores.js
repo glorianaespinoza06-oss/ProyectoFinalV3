@@ -90,13 +90,23 @@ async function crearProfesor(codigo, nombre, correo, celular) {
   if (error) {
     console.error(error);
   }
+  alert("✅ Profesor creado correctamente.");
   cargarProfesores();
 }
 
 async function eliminarProfesor(codigo) {
+  // Mostrar mensaje de confirmación
+  const confirmar = confirm("¿Está seguro de que desea eliminar este profesor?");
+
+  if (!confirmar) {
+    return; // Si el usuario cancela, no se elimina
+  }
   let { error } = await supabase.from("Profesores").delete().eq("codigo", codigo);
   if (error) {
-    console.error(error);
+    console.error("Error al eliminar un profesor:", error);
+    alert("❌ Ocurrió un error al eliminar el profesor.");
+  } else {
+    alert("✅ Profesor eliminado correctamente.");
   }
 }
 async function editarProfesor(codigo) {
