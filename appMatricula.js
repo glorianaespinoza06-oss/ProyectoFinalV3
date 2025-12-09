@@ -6,10 +6,8 @@ import { supabase } from "./supebaseClient.js";
 const form = document.getElementById("estudiante-form");
 const inputId = document.getElementById("idEstudiante");
 const inputNombre= document.getElementById("nombre");
-const inputCorreo = document.getElementById("correo");
-const inputCelular= document.getElementById("celular");
-const inputDireccion = document.getElementById("direccion");
-
+const inputEmail = document.getElementById("email");
+const inputIdCarrera = document.getElementById("cmbCarreras").value;
 const btnSave = document.getElementById("btn-save");
 const btnCancel = document.getElementById("btn-cancel");
 const statusDiv = document.getElementById("status");
@@ -21,13 +19,11 @@ let listaEstudiantes = document.getElementById("tablaEstudiantes");
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const nombre = inputNombre.value.trim();
-  const correo = inputCorreo.value.trim();
-  const celular = inputCelular.value.trim();
-  const direccion = inputDireccion.value.trim();
-
+  const email = inputEmail.value.trim();
+  const idCarrera = parseInt(document.getElementById("cmbCarreras").value);
   if (editando) {
   } else {
-    await crearEstudiante(nombre, correo, celular, direccion);
+    await crearEstudiante(nombre, correo, idCarrera);
   }
 
   form.reset();
@@ -37,7 +33,7 @@ listaEstudiantes.addEventListener("click", async (e) => {
   if (e.target.classList.contains("btn-delete")) {
     const id = e.target.getAttribute("data-id");
     await eliminarEstudiante(id);
-    cargarEstudiantes();
+    cargarEstudiante();
   }
     if (e.target.classList.contains("btn-edit")) {
     const id = e.target.getAttribute("data-id");
@@ -67,11 +63,12 @@ async function cargarEstudiantes() {
         let tr = document.createElement("tr");
 
         // AHORA SÍ funciona el await
+        let carrera = await obtenerCarreraPorID(estudiante.idCarrera);
+
         tr.innerHTML = `
             <td>${estudiante.nombre}</td>
             <td>${estudiante.email}</td>
-            <td>${estudiante.celular}</td>
-            <td>${estudiante.direccion}</td>
+            <td>${carrera}</td>
             <td>
                 <button class="btn btn-danger btn-sm btn-delete" data-id="${estudiante.idEstudiante}">
                   <i class="fa-solid fa-trash-can"></i>
@@ -87,34 +84,22 @@ async function cargarEstudiantes() {
         tbody.appendChild(tr);
     }
 }
-async function crearEstudiante(nombre, email, celular, direccion) {
-  const estudiante = { nombre, email, celular, direccion };
-  let { error } = await supabase.from("Estudiantes").insert([estudiante]);
+async function crearEstudiante(nombre, correo, idCarrera) {
+  const estudiante = { nombre, correo, idCarrera };
+  let { error } = await supabase.from("Estudiante").insert([estudiante]);
   if (error) {
     console.error("Error al crear estudiante:", error);
   }
-  cargarEstudiantes();
+  cargarEstudiante();
 }
 
 async function eliminarEstudiante(idEstudiante) {
-  // Mostrar mensaje de confirmación
-  const confirmar = confirm("¿Está seguro de que desea eliminar este estudiante?");
-
-  if (!confirmar) {
-    return; // Si el usuario cancela, no se elimina
-  }
-
-  // Procede con el borrado
   let { error } = await supabase
-    .from("Estudiantes")
+    .from("Estudiante")
     .delete()
     .eq("idEstudiante", idEstudiante);
-
   if (error) {
     console.error("Error al eliminar estudiante:", error);
-    alert("❌ Ocurrió un error al eliminar el estudiante.");
-  } else {
-    alert("✅ Estudiante eliminado correctamente.");
   }
 }
 
@@ -130,11 +115,57 @@ let { data: estudiante, error } = await supabase
   }
    // Cargar en HTML
     document.getElementById("nombre").value = estudiante.nombre;
-    document.getElementById("correo").value = estudiante.email;
-    document.getElementById("celular").value = estudiante.celular;
-    document.getElementById("direccion").value = estudiante.direccion;
+    document.getElementById("email").value = estudiante.email;
+    document.getElementById("idCarrera").value = estudiante.idCarrera;
 }
 
+async function cargarCarreras() {
+    let { data: carreras, error } = await supabase
+        .from("Carreras")
+        .select("*");
+
+    if (error) {
+        console.error(error);
+        return;
+    }
+
+    cargarCombo("cmbCarreras", carreras, "codigo", "descripcion");
+}
+
+function cargarCombo(comboId, lista, valueField, textField) {
+    const combo = document.getElementById(comboId);
+    combo.innerHTML = ""; // limpiar
+
+    // Opción por defecto
+    const opcionDefault = document.createElement("option");
+    opcionDefault.textContent = "-- Seleccione --";
+    opcionDefault.value = "";
+    combo.appendChild(opcionDefault);
+
+    // Recorrer la lista y agregar opciones
+    lista.forEach(item => {
+        const option = document.createElement("option");
+        option.value = item[valueField];
+        option.textContent = item[textField];
+        combo.appendChild(option);
+    });
+}
+
+async function obtenerCarreraPorID(codigo) {
+
+let { data: carrera, error } = await supabase
+    .from("Carreras")
+    .select("*")
+    .eq("codigo", codigo)
+    .single();
+
+    if (error) {
+        console.error(error);
+        return null;
+    }
+
+    return carrera.descripcion;
+}
 
 cargarEstudiantes();
-
+cargarCarreras();
