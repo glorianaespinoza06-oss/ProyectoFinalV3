@@ -20,9 +20,10 @@ form.addEventListener("submit", async (e) => {
   const codigo = inputCodigo.value.trim();
   const nombre = inputNombre.value.trim();
   const creditos = parseInt(inputCreditos.value.trim());
+  const idcarrera = parseInt(document.getElementById("cmbCarreras").value);
   if (editando) {
   } else {
-    await crearCurso(codigo, nombre, creditos);
+    await crearCurso(codigo, nombre, creditos,idcarrera);
   }
 
   form.reset();
@@ -55,13 +56,16 @@ async function cargarCursos() {
  let tbody = document.getElementById("tablaCursos");
     tbody.innerHTML = ""; // limpiar antes de cargar
 
-    cursos.forEach((curso) => {
+      for (let curso of cursos) {
+
+       let carrera = await obtenerCarreraPorID(curso.idcarrera);
         let tr = document.createElement("tr");
 
         tr.innerHTML = `
             <td>${curso.codigo}</td>
             <td>${curso.nombre}</td>
             <td>${curso.creditos}</td>
+             <td>${carrera}</td>
             <td>
                 <button class="btn btn-danger btn-sm btn-delete" data-id="${curso.codigo}">
                   <i class="fa-solid fa-trash-can"></i>
@@ -75,10 +79,10 @@ async function cargarCursos() {
         `;
 
         tbody.appendChild(tr);
-    });
+    }
 }
-async function crearCurso(codigo, nombre, creditos) {
-  const curso = { codigo, nombre, creditos };
+async function crearCurso(codigo, nombre, creditos,idcarrera) {
+  const curso = { codigo, nombre, creditos, idcarrera };
   let { error } = await supabase.from("Cursos").insert([curso]);
   if (error) {
     console.error(error);
@@ -117,6 +121,56 @@ let { data: curso, error } = await supabase
     document.getElementById("codigo").value = curso.codigo;
     document.getElementById("nombre").value = curso.nombre;
     document.getElementById("creditos").value = curso.creditos;
+    document.getElementById("cmbCarreras").value = curso.idcarrera;
+}
+
+async function cargarCarreras() {
+    let { data: carreras, error } = await supabase
+        .from("Carreras")
+        .select("*");
+
+    if (error) {
+        console.error(error);
+        return;
+    }
+
+    cargarCombo("cmbCarreras", carreras, "codigo", "descripcion");
+}
+
+function cargarCombo(comboId, lista, valueField, textField) {
+    const combo = document.getElementById(comboId);
+    combo.innerHTML = ""; // limpiar
+
+    // Opción por defecto
+    const opcionDefault = document.createElement("option");
+    opcionDefault.textContent = "-- Seleccione --";
+    opcionDefault.value = "";
+    combo.appendChild(opcionDefault);
+
+    // Recorrer la lista y agregar opciones
+    lista.forEach(item => {
+        const option = document.createElement("option");
+        option.value = item[valueField];
+        option.textContent = item[textField];
+        combo.appendChild(option);
+    });
+}
+
+async function obtenerCarreraPorID(codigo) {
+
+let { data: carrera, error } = await supabase
+    .from("Carreras")
+    .select("*")
+    .eq("codigo", codigo)
+    .single();
+
+    if (error) {
+        console.error(error);
+        return null;
+    }
+
+    return carrera.descripcion;
 }
 
 cargarCursos();
+cargarCarreras();
