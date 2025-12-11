@@ -7,6 +7,8 @@ const form = document.getElementById("curso-form");
 const inputCodigo = document.getElementById("codigo");
 const inputNombre = document.getElementById("nombre");
 const inputCreditos = document.getElementById("creditos");
+const inputIdCarrera = document.getElementById("cmbCarreras");
+const inputId = document.getElementById("id");
 const btnSave = document.getElementById("btn-save");
 const btnCancel = document.getElementById("btn-cancel");
 const statusDiv = document.getElementById("status");
@@ -30,13 +32,15 @@ form.addEventListener("submit", async (e) => {
 });
 
 listaCursos.addEventListener("click", async (e) => {
-  if (e.target.classList.contains("btn-delete")) {
-    const id = e.target.getAttribute("data-id");
+  const deletebtn = e.target.closest(".btn-delete");
+  const editbtn = e.target.closest(".btn-edit");
+  if (deletebtn) {
+    const id = deletebtn.getAttribute("data-id");
     await eliminarCursos(id);
     cargarCursos();
   }
-    if (e.target.classList.contains("btn-edit")) {
-    const id = e.target.getAttribute("data-id");
+    if (editbtn) {
+    const id = editbtn.getAttribute("data-id");
     await editarCursos(id);
     cargarCursos();
   }
@@ -118,10 +122,11 @@ let { data: curso, error } = await supabase
     console.error(error);
   }
    // Cargar en HTML
-    document.getElementById("codigo").value = curso.codigo;
-    document.getElementById("nombre").value = curso.nombre;
-    document.getElementById("creditos").value = curso.creditos;
-    document.getElementById("cmbCarreras").value = curso.idcarrera;
+  //document.getElementById("codigo").value = curso.codigo;
+  inputCodigo.value = curso.nombre;
+  document.getElementById("nombre").value = curso.nombre;
+  document.getElementById("creditos").value = curso.creditos;
+  document.getElementById("cmbCarreras").value = curso.idcarrera;
 }
 
 async function cargarCarreras() {

@@ -5,7 +5,7 @@ import { supabase } from "./supebaseClient.js";
 //========================
 const form = document.getElementById("estudiante-form");
 const inputId = document.getElementById("idMatricula");
-const inputCreditos= document.getElementById("creditos");
+const inputCreditos = document.getElementById("creditos");
 const inputIdEstudiante = document.getElementById("cmbEstudiantes").value;
 const inputIdCarrera = document.getElementById("cmbCarreras").value;
 const inputIdNivel = document.getElementById("cmbNivelAcademico").value;
@@ -21,14 +21,24 @@ form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const creditos = inputCreditos.value.trim();
   const idCarrera = parseInt(document.getElementById("cmbCarreras").value);
-   const idEstudiante = parseInt(document.getElementById("cmbEstudiantes").value);
-    const idNivel = parseInt(document.getElementById("cmbNivelAcademico").value);
-     const año = parseInt(document.getElementById("cmbAño").value);
-      const periodo = parseInt(document.getElementById("cmbPeriodo").value);
-       const idCurso = parseInt(document.getElementById("cmbCursos").value);
+  const idEstudiante = parseInt(
+    document.getElementById("cmbEstudiantes").value
+  );
+  const idNivel = parseInt(document.getElementById("cmbNivelAcademico").value);
+  const año = parseInt(document.getElementById("cmbAño").value);
+  const periodo = parseInt(document.getElementById("cmbPeriodo").value);
+  const idCurso = parseInt(document.getElementById("cmbCursos").value);
   if (editando) {
   } else {
-    await crearMatricula(idEstudiante, idCarrera, creditos, idNivel,año,periodo,idCurso);
+    await crearMatricula(
+      idEstudiante,
+      idCarrera,
+      creditos,
+      idNivel,
+      año,
+      periodo,
+      idCurso
+    );
   }
 
   form.reset();
@@ -38,21 +48,20 @@ listaMatriculas.addEventListener("click", async (e) => {
   if (e.target.classList.contains("btn-delete")) {
     const id = e.target.getAttribute("data-id");
     await eliminarMatriculas(id);
-cargarMatriculas();
+    cargarMatriculas();
   }
-    if (e.target.classList.contains("btn-edit")) {
+  if (e.target.classList.contains("btn-edit")) {
     const id = e.target.getAttribute("data-id");
     await editarMatriculas(id);
-
   }
 });
 
 document.getElementById("cmbCarreras").addEventListener("change", function () {
-cargarCursos(this.value);
+  cargarCursos(this.value);
 });
 
 document.getElementById("cmbCursos").addEventListener("change", function () {
-cargarCreditos(this.value);
+  cargarCreditos(this.value);
 });
 
 //===================================
@@ -68,22 +77,21 @@ async function cargarMatriculas() {
     return;
   }
   listaMatriculas.innerHTML = "";
- let tbody = document.getElementById("tablaMatriculas");
-    tbody.innerHTML = ""; // limpiar antes de cargar
+  let tbody = document.getElementById("tablaMatriculas");
+  tbody.innerHTML = ""; // limpiar antes de cargar
 
-    for (let matricula of Matriculas) {
+  for (let matricula of Matriculas) {
+    let tr = document.createElement("tr");
 
-        let tr = document.createElement("tr");
+    // AHORA SÍ funciona el await
+    let carrera = await obtenerCarreraPorID(matricula.idCarrera);
+    let estudiante = await obtenerEstudiantePorID(matricula.idEstudiante);
+    let nivel = await obtenerNivelPorID(matricula.idNivel);
+    let curso = await obtenerCursosPorID(matricula.idCurso);
+    let periodo = await obtenerPeriodoPorID(matricula.periodo);
+    let año = await obtenerAñosPorID(matricula.año);
 
-        // AHORA SÍ funciona el await
-        let carrera = await obtenerCarreraPorID(matricula.idCarrera);
-        let estudiante = await obtenerEstudiantePorID(matricula.idEstudiante);
-        let nivel = await obtenerNivelPorID(matricula.idNivel);
-        let curso = await obtenerCursosPorID(matricula.idCurso);
-        let periodo = await obtenerPeriodoPorID(matricula.periodo);
-        let año = await obtenerAñosPorID(matricula.año);
-
-        tr.innerHTML = `
+    tr.innerHTML = `
             <td>${estudiante}</td>
             <td>${carrera}</td>
             <td>${curso}</td>
@@ -103,22 +111,40 @@ async function cargarMatriculas() {
             </td>
         `;
 
-        tbody.appendChild(tr);
-    }
+    tbody.appendChild(tr);
+  }
 }
-async function crearMatricula(idEstudiante, idCarrera, creditos, idNivel,año,periodo,idCurso) {
-  const matricula = { idEstudiante, idCarrera, creditos, idNivel,año,periodo,idCurso };
+async function crearMatricula(
+  idEstudiante,
+  idCarrera,
+  creditos,
+  idNivel,
+  año,
+  periodo,
+  idCurso
+) {
+  const matricula = {
+    idEstudiante,
+    idCarrera,
+    creditos,
+    idNivel,
+    año,
+    periodo,
+    idCurso,
+  };
   let { error } = await supabase.from("Matriculas").insert([matricula]);
   if (error) {
     console.error("Error al crear una matricula:", error);
   }
-   alert("✅ Matrícula creada correctamente.");
+  alert("✅ Matrícula creada correctamente.");
   cargarMatriculas();
 }
 
 async function eliminarMatriculas(idMatricula) {
- // Mostrar mensaje de confirmación
-  const confirmar = confirm("¿Está seguro de que desea eliminar esta matrícula?");
+  // Mostrar mensaje de confirmación
+  const confirmar = confirm(
+    "¿Está seguro de que desea eliminar esta matrícula?"
+  );
 
   if (!confirmar) {
     return; // Si el usuario cancela, no se elimina
@@ -139,7 +165,7 @@ async function eliminarMatriculas(idMatricula) {
 }
 
 async function editarMatriculas(codigo) {
-let { data: matricula, error } = await supabase
+  let { data: matricula, error } = await supabase
     .from("Matriculas")
     .select("*")
     .eq("idMatricula", codigo)
@@ -148,222 +174,208 @@ let { data: matricula, error } = await supabase
   if (error) {
     console.error(error);
   }
-   // Cargar en HTML
-    document.getElementById("creditos").value = matricula.creditos;
-    document.getElementById("cmbCarreras").value = matricula.idCarrera;
-    document.getElementById("cmbEstudiantes").value = matricula.idEstudiante;
-    document.getElementById("cmbNivelAcademico").value = matricula.idNivel;
+  // Cargar en HTML
+  document.getElementById("creditos").value = matricula.creditos;
+  document.getElementById("cmbCarreras").value = matricula.idCarrera;
+  document.getElementById("cmbEstudiantes").value = matricula.idEstudiante;
+  document.getElementById("cmbNivelAcademico").value = matricula.idNivel;
 }
 
 async function cargarCarreras() {
-    let { data: carreras, error } = await supabase
-        .from("Carreras")
-        .select("*");
+  let { data: carreras, error } = await supabase.from("Carreras").select("*");
 
-    if (error) {
-        console.error(error);
-        return;
-    }
+  if (error) {
+    console.error(error);
+    return;
+  }
 
-    cargarCombo("cmbCarreras", carreras, "codigo", "descripcion");
+  cargarCombo("cmbCarreras", carreras, "codigo", "descripcion");
 }
 
 async function cargarEstudiantes() {
-    let { data: estudiantes, error } = await supabase
-        .from("Estudiantes")
-        .select("*");
+  let { data: estudiantes, error } = await supabase
+    .from("Estudiantes")
+    .select("*");
 
-    if (error) {
-        console.error(error);
-        return;
-    }
+  if (error) {
+    console.error(error);
+    return;
+  }
 
-    cargarCombo("cmbEstudiantes", estudiantes, "idEstudiante", "nombre");
+  cargarCombo("cmbEstudiantes", estudiantes, "idEstudiante", "nombre");
 }
 
 async function cargarNiveles() {
-    let { data: niveles, error } = await supabase
-        .from("NivelAcademico")
-        .select("*");
+  let { data: niveles, error } = await supabase
+    .from("NivelAcademico")
+    .select("*");
 
-    if (error) {
-        console.error(error);
-        return;
-    }
+  if (error) {
+    console.error(error);
+    return;
+  }
 
-    cargarCombo("cmbNivelAcademico", niveles, "idNivel", "descripcion");
+  cargarCombo("cmbNivelAcademico", niveles, "idNivel", "descripcion");
 }
 
 async function cargarAños() {
-    let { data: niveles, error } = await supabase
-        .from("Años")
-        .select("*");
+  let { data: niveles, error } = await supabase.from("Años").select("*");
 
-    if (error) {
-        console.error(error);
-        return;
-    }
+  if (error) {
+    console.error(error);
+    return;
+  }
 
-    cargarCombo("cmbAño", niveles, "idAño", "descripcion");
+  cargarCombo("cmbAño", niveles, "idAño", "descripcion");
 }
 
 async function cargarPeriodos() {
-    let { data: niveles, error } = await supabase
-        .from("Periodos")
-        .select("*");
+  let { data: niveles, error } = await supabase.from("Periodos").select("*");
 
-    if (error) {
-        console.error(error);
-        return;
-    }
+  if (error) {
+    console.error(error);
+    return;
+  }
 
-    cargarCombo("cmbPeriodo", niveles, "idPeriodo", "descripcion");
+  cargarCombo("cmbPeriodo", niveles, "idPeriodo", "descripcion");
 }
 
 async function cargarCursos(idCarrera) {
-    let { data: niveles, error } = await supabase
-        .from("Cursos")
-        .select("*")
-         .eq("idcarrera", idCarrera);
+  let { data: niveles, error } = await supabase
+    .from("Cursos")
+    .select("*")
+    .eq("idcarrera", idCarrera);
 
-    if (error) {
-        console.error(error);
-        return;
-    }
+  if (error) {
+    console.error(error);
+    return;
+  }
 
-    cargarCombo("cmbCursos", niveles, "codigo", "nombre");
+  cargarCombo("cmbCursos", niveles, "codigo", "nombre");
 }
 
 async function cargarCreditos(codigo) {
-   let { data: carrera, error } = await supabase
+  let { data: carrera, error } = await supabase
     .from("Cursos")
     .select("*")
     .eq("codigo", codigo)
     .single();
 
-    if (error) {
-        console.error(error);
-        return null;
-    }
-     document.getElementById("creditos").value = carrera.creditos;
-    return carrera.creditos;
-   
-   
+  if (error) {
+    console.error(error);
+    return null;
+  }
+  document.getElementById("creditos").value = carrera.creditos;
+  return carrera.creditos;
 }
 
 function cargarCombo(comboId, lista, valueField, textField) {
-    const combo = document.getElementById(comboId);
-    combo.innerHTML = ""; // limpiar
+  const combo = document.getElementById(comboId);
+  combo.innerHTML = ""; // limpiar
 
-    // Opción por defecto
-    const opcionDefault = document.createElement("option");
-    opcionDefault.textContent = "-- Seleccione --";
-    opcionDefault.value = "";
-    combo.appendChild(opcionDefault);
+  // Opción por defecto
+  const opcionDefault = document.createElement("option");
+  opcionDefault.textContent = "-- Seleccione --";
+  opcionDefault.value = "";
+  combo.appendChild(opcionDefault);
 
-    // Recorrer la lista y agregar opciones
-    lista.forEach(item => {
-        const option = document.createElement("option");
-        option.value = item[valueField];
-        option.textContent = item[textField];
-        combo.appendChild(option);
-    });
+  // Recorrer la lista y agregar opciones
+  lista.forEach((item) => {
+    const option = document.createElement("option");
+    option.value = item[valueField];
+    option.textContent = item[textField];
+    combo.appendChild(option);
+  });
 }
 
 async function obtenerCarreraPorID(codigo) {
-
-let { data: carrera, error } = await supabase
+  let { data: carrera, error } = await supabase
     .from("Carreras")
     .select("*")
     .eq("codigo", codigo)
     .single();
 
-    if (error) {
-        console.error(error);
-        return null;
-    }
+  if (error) {
+    console.error(error);
+    return null;
+  }
 
-    return carrera.descripcion;
+  return carrera.descripcion;
 }
 
 async function obtenerEstudiantePorID(codigo) {
-
-let { data: estudiante, error } = await supabase
+  let { data: estudiante, error } = await supabase
     .from("Estudiantes")
     .select("*")
     .eq("idEstudiante", codigo)
     .single();
 
-    if (error) {
-        console.error(error);
-        return null;
-    }
+  if (error) {
+    console.error(error);
+    return null;
+  }
 
-    return estudiante.nombre;
+  return estudiante.nombre;
 }
 
 async function obtenerNivelPorID(codigo) {
-
-let { data: nivel, error } = await supabase
+  let { data: nivel, error } = await supabase
     .from("NivelAcademico")
     .select("*")
     .eq("idNivel", codigo)
     .single();
 
-    if (error) {
-        console.error(error);
-        return null;
-    }
+  if (error) {
+    console.error(error);
+    return null;
+  }
 
-    return nivel.descripcion;
+  return nivel.descripcion;
 }
 
 async function obtenerCursosPorID(codigo) {
-
-let { data: curso, error } = await supabase
+  let { data: curso, error } = await supabase
     .from("Cursos")
     .select("*")
     .eq("codigo", codigo)
     .single();
 
-    if (error) {
-        console.error(error);
-        return null;
-    }
+  if (error) {
+    console.error(error);
+    return null;
+  }
 
-    return curso.nombre;
+  return curso.nombre;
 }
 
 async function obtenerPeriodoPorID(codigo) {
-
-let { data: periodo, error } = await supabase
+  let { data: periodo, error } = await supabase
     .from("Periodos")
     .select("*")
     .eq("idPeriodo", codigo)
     .single();
 
-    if (error) {
-        console.error(error);
-        return null;
-    }
+  if (error) {
+    console.error(error);
+    return null;
+  }
 
-    return periodo.descripcion;
+  return periodo.descripcion;
 }
 
 async function obtenerAñosPorID(codigo) {
-
-let { data: año, error } = await supabase
+  let { data: año, error } = await supabase
     .from("Años")
     .select("*")
     .eq("idAño", codigo)
     .single();
 
-    if (error) {
-        console.error(error);
-        return null;
-    }
+  if (error) {
+    console.error(error);
+    return null;
+  }
 
-    return año.descripcion;
+  return año.descripcion;
 }
 
 cargarMatriculas();
