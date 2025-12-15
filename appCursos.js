@@ -17,19 +17,31 @@ let listaCursos = document.getElementById("tablaCursos");
 //========================
 //Eventos
 //========================
+
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const codigo = inputCodigo.value.trim();
   const nombre = inputNombre.value.trim();
   const creditos = parseInt(inputCreditos.value.trim());
-  const idcarrera = parseInt(document.getElementById("cmbCarreras").value);
+
+  //Editar
   if (editando) {
-  } else {
-    await crearCurso(codigo, nombre, creditos,idcarrera);
+    const id = inputId.value; /*Obtener id  a actualizar*/
+    await actualizarCurso(id, codigo, nombre, creditos); /* Actulizo */
+    // Se completo la actualizacion 
+    editando = false;
+    tituloForm.textContent = "Registrar curso";
+    btnSave.textContent = "Guardar";
+    btnCancel.style.display = "none";
+  } 
+  //Insertar
+  else {
+    await crearCurso(codigo, nombre, creditos);
   }
 
   form.reset();
 });
+
 
 listaCursos.addEventListener("click", async (e) => {
   const deletebtn = e.target.closest(".btn-delete");
@@ -66,6 +78,7 @@ async function cargarCursos() {
         let tr = document.createElement("tr");
 
         tr.innerHTML = `
+            <td>${nivel}</td>
             <td>${curso.codigo}</td>
             <td>${curso.nombre}</td>
             <td>${curso.creditos}</td>
@@ -127,6 +140,20 @@ let { data: curso, error } = await supabase
   document.getElementById("nombre").value = curso.nombre;
   document.getElementById("creditos").value = curso.creditos;
   document.getElementById("cmbCarreras").value = curso.idcarrera;
+  document.getElementById("cmbNivelAcademico").value = curso.idNivel;
+}
+
+async function cargarNiveles() {
+  let { data: niveles, error } = await supabase
+    .from("NivelAcademico")
+    .select("*");
+
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  cargarCombo("cmbNivelAcademico", niveles, "idNivel", "descripcion");
 }
 
 async function cargarCarreras() {
@@ -177,5 +204,21 @@ let { data: carrera, error } = await supabase
     return carrera.descripcion;
 }
 
+async function obtenerNivelPorID(codigo) {
+  let { data: nivel, error } = await supabase
+    .from("NivelAcademico")
+    .select("*")
+    .eq("idNivel", codigo)
+    .single();
+
+  if (error) {
+    console.error(error);
+    return null;
+  }
+
+  return nivel.descripcion;
+}
+
 cargarCursos();
 cargarCarreras();
+cargarNiveles();

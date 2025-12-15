@@ -96,7 +96,6 @@ async function cargarMatriculas() {
             <td>${carrera}</td>
             <td>${curso}</td>
             <td>${matricula.creditos}</td>
-            <td>${nivel}</td>
             <td>${periodo}</td>
             <td>${año}</td>
             <td>
@@ -205,19 +204,6 @@ async function cargarEstudiantes() {
   cargarCombo("cmbEstudiantes", estudiantes, "idEstudiante", "nombre");
 }
 
-async function cargarNiveles() {
-  let { data: niveles, error } = await supabase
-    .from("NivelAcademico")
-    .select("*");
-
-  if (error) {
-    console.error(error);
-    return;
-  }
-
-  cargarCombo("cmbNivelAcademico", niveles, "idNivel", "descripcion");
-}
-
 async function cargarAños() {
   let { data: niveles, error } = await supabase.from("Años").select("*");
 
@@ -318,21 +304,6 @@ async function obtenerEstudiantePorID(codigo) {
   return estudiante.nombre;
 }
 
-async function obtenerNivelPorID(codigo) {
-  let { data: nivel, error } = await supabase
-    .from("NivelAcademico")
-    .select("*")
-    .eq("idNivel", codigo)
-    .single();
-
-  if (error) {
-    console.error(error);
-    return null;
-  }
-
-  return nivel.descripcion;
-}
-
 async function obtenerCursosPorID(codigo) {
   let { data: curso, error } = await supabase
     .from("Cursos")
@@ -381,6 +352,5 @@ async function obtenerAñosPorID(codigo) {
 cargarMatriculas();
 cargarCarreras();
 cargarEstudiantes();
-cargarNiveles();
 cargarAños();
 cargarPeriodos();
