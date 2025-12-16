@@ -8,7 +8,6 @@ const inputId = document.getElementById("idMatricula");
 const inputCreditos = document.getElementById("creditos");
 const inputIdEstudiante = document.getElementById("cmbEstudiantes").value;
 const inputIdCarrera = document.getElementById("cmbCarreras").value;
-const inputIdNivel = document.getElementById("cmbNivelAcademico").value;
 const btnSave = document.getElementById("btn-save");
 const btnCancel = document.getElementById("btn-cancel");
 const statusDiv = document.getElementById("status");

@@ -8,6 +8,7 @@ const inputCodigo = document.getElementById("codigo");
 const inputNombre = document.getElementById("nombre");
 const inputCreditos = document.getElementById("creditos");
 const inputIdCarrera = document.getElementById("cmbCarreras");
+const inputIdNivel = document.getElementById("cmbNivelAcademico");
 const inputId = document.getElementById("id");
 const btnSave = document.getElementById("btn-save");
 const btnCancel = document.getElementById("btn-cancel");
@@ -23,25 +24,33 @@ form.addEventListener("submit", async (e) => {
   const codigo = inputCodigo.value.trim();
   const nombre = inputNombre.value.trim();
   const creditos = parseInt(inputCreditos.value.trim());
+  const idcarrera = parseInt(inputIdCarrera.value);
+  const idNivel = parseInt(inputIdNivel.value);
 
   //Editar
   if (editando) {
     const id = inputId.value; /*Obtener id  a actualizar*/
-    await actualizarCurso(id, codigo, nombre, creditos); /* Actulizo */
-    // Se completo la actualizacion 
+    await actualizarCurso(
+      id,
+      codigo,
+      nombre,
+      creditos,
+      idcarrera,
+      idNivel
+    ); /* Actulizo */
+    // Se completo la actualizacion
     editando = false;
-    tituloForm.textContent = "Registrar curso";
+    tituloForm.textContent = "Registrar";
     btnSave.textContent = "Guardar";
     btnCancel.style.display = "none";
-  } 
+  }
   //Insertar
   else {
-    await crearCurso(codigo, nombre, creditos);
+    await crearCurso(codigo, nombre, creditos, idcarrera, idNivel);
   }
 
   form.reset();
 });
-
 
 listaCursos.addEventListener("click", async (e) => {
   const deletebtn = e.target.closest(".btn-delete");
@@ -51,7 +60,7 @@ listaCursos.addEventListener("click", async (e) => {
     await eliminarCursos(id);
     cargarCursos();
   }
-    if (editbtn) {
+  if (editbtn) {
     const id = editbtn.getAttribute("data-id");
     await editarCursos(id);
     cargarCursos();
@@ -69,20 +78,20 @@ async function cargarCursos() {
     return;
   }
   listaCursos.innerHTML = "";
- let tbody = document.getElementById("tablaCursos");
-    tbody.innerHTML = ""; // limpiar antes de cargar
+  let tbody = document.getElementById("tablaCursos");
+  tbody.innerHTML = ""; // limpiar antes de cargar
 
-      for (let curso of cursos) {
+  for (let curso of cursos) {
+    let carrera = await obtenerCarreraPorID(curso.idcarrera);
+    let nivel = await obtenerNivelPorID(curso.idNivel);
+    let tr = document.createElement("tr");
 
-       let carrera = await obtenerCarreraPorID(curso.idcarrera);
-        let tr = document.createElement("tr");
-
-        tr.innerHTML = `
-            <td>${nivel}</td>
+    tr.innerHTML = `
             <td>${curso.codigo}</td>
             <td>${curso.nombre}</td>
             <td>${curso.creditos}</td>
              <td>${carrera}</td>
+             <td>${nivel}</td>
             <td>
                 <button class="btn btn-danger btn-sm btn-delete" data-id="${curso.codigo}">
                   <i class="fa-solid fa-trash-can"></i>
@@ -95,11 +104,11 @@ async function cargarCursos() {
             </td>
         `;
 
-        tbody.appendChild(tr);
-    }
+    tbody.appendChild(tr);
+  }
 }
-async function crearCurso(codigo, nombre, creditos,idcarrera) {
-  const curso = { codigo, nombre, creditos, idcarrera };
+async function crearCurso(codigo, nombre, creditos, idcarrera, idNivel) {
+  const curso = { codigo, nombre, creditos, idcarrera, idNivel };
   let { error } = await supabase.from("Cursos").insert([curso]);
   if (error) {
     console.error(error);
@@ -108,8 +117,22 @@ async function crearCurso(codigo, nombre, creditos,idcarrera) {
   cargarCursos();
 }
 
+async function actualizarCurso(codigo, nombre, creditos, idcarrera, idNivel) {
+  const { error } = await supabase
+    .from("Cursos")
+    .update({ nombre, creditos, idcarrera, idNivel })
+    .eq("codigo", codigo);
+
+  if (error) {
+    console.error(error);
+    alert("❌ Error al actualizar curso");
+  } else {
+    alert("✅ Curso actualizado correctamente");
+    cargarCursos();
+  }
+}
 async function eliminarCursos(codigo) {
-   // Mostrar mensaje de confirmación
+  // Mostrar mensaje de confirmación
   const confirmar = confirm("¿Está seguro de que desea eliminar este curso?");
 
   if (!confirmar) {
@@ -125,7 +148,7 @@ async function eliminarCursos(codigo) {
 }
 
 async function editarCursos(codigo) {
-let { data: curso, error } = await supabase
+  let { data: curso, error } = await supabase
     .from("Cursos")
     .select("*")
     .eq("codigo", codigo)
@@ -134,7 +157,7 @@ let { data: curso, error } = await supabase
   if (error) {
     console.error(error);
   }
-   // Cargar en HTML
+  // Cargar en HTML
   //document.getElementById("codigo").value = curso.codigo;
   inputCodigo.value = curso.nombre;
   document.getElementById("nombre").value = curso.nombre;
@@ -157,51 +180,49 @@ async function cargarNiveles() {
 }
 
 async function cargarCarreras() {
-    let { data: carreras, error } = await supabase
-        .from("Carreras")
-        .select("*");
+  let { data: carreras, error } = await supabase.from("Carreras").select("*");
 
-    if (error) {
-        console.error(error);
-        return;
-    }
+  if (error) {
+    console.error(error);
+    return;
+  }
 
-    cargarCombo("cmbCarreras", carreras, "codigo", "descripcion");
+  cargarCombo("cmbCarreras", carreras, "codigo", "descripcion");
 }
 
 function cargarCombo(comboId, lista, valueField, textField) {
-    const combo = document.getElementById(comboId);
-    combo.innerHTML = ""; // limpiar
+  const combo = document.getElementById(comboId);
+  combo.innerHTML = ""; // limpiar
 
-    // Opción por defecto
-    const opcionDefault = document.createElement("option");
-    opcionDefault.textContent = "-- Seleccione --";
-    opcionDefault.value = "";
-    combo.appendChild(opcionDefault);
+  // Opción por defecto
+  const opcionDefault = document.createElement("option");
+  opcionDefault.textContent = "-- Seleccione --";
+  opcionDefault.value = "";
+  combo.appendChild(opcionDefault);
 
-    // Recorrer la lista y agregar opciones
-    lista.forEach(item => {
-        const option = document.createElement("option");
-        option.value = item[valueField];
-        option.textContent = item[textField];
-        combo.appendChild(option);
-    });
+  // Recorrer la lista y agregar opciones
+  lista.forEach((item) => {
+    const option = document.createElement("option");
+    option.value = item[valueField];
+    option.textContent = item[textField];
+    combo.appendChild(option);
+  });
 }
 
 async function obtenerCarreraPorID(codigo) {
-
-let { data: carrera, error } = await supabase
+  let { data: carrera, error } = await supabase
     .from("Carreras")
     .select("*")
     .eq("codigo", codigo)
+    .eq("idNivel", codigo)
     .single();
 
-    if (error) {
-        console.error(error);
-        return null;
-    }
+  if (error) {
+    console.error(error);
+    return null;
+  }
 
-    return carrera.descripcion;
+  return carrera.descripcion;
 }
 
 async function obtenerNivelPorID(codigo) {
