@@ -12,6 +12,7 @@ const inputCelular = document.getElementById("celular");
 const btnSave = document.getElementById("btn-save");
 const btnCancel = document.getElementById("btn-cancel");
 const statusDiv = document.getElementById("status");
+const tituloForm = document.getElementById("form-title");
 let editando = false;
 let listaProfesores = document.getElementById("tablaProfesores");
 //========================
@@ -25,6 +26,11 @@ form.addEventListener("submit", async (e) => {
   const celular = inputCelular.value.trim();
   
   if (editando) {
+    await actualizarProfesor(codigo, nombre, correo, celular);
+     editando = false;
+    tituloForm.textContent = "Registrar";
+    btnSave.textContent = "Guardar";
+    btnCancel.style.display = "none";
   } else {
    await crearProfesor(codigo, nombre, correo, celular);
   }
@@ -46,6 +52,14 @@ listaProfesores.addEventListener("click", async (e) => {
   }
 
 
+});
+
+btnCancel.addEventListener("click", () => {
+  form.reset();
+  editando = false;
+  tituloForm.textContent = "Registrar";
+  btnSave.textContent = "Guardar";
+  btnCancel.style.display = "none";
 });
 
 
@@ -124,6 +138,24 @@ let { data: profesor, error } = await supabase
     document.getElementById("nombre").value = profesor.nombre;
     document.getElementById("correo").value = profesor.correo;
     document.getElementById("celular").value = profesor.celular;
+
+     editando = true;
+      tituloForm.textContent = "Editar profesor";
+      btnSave.textContent = "Actualizar";
+      btnCancel.style.display = "inline-block";
 }
+
+async function actualizarProfesor(codigo, nombre, correo, celular) {
+   const { error } = await supabase
+    .from("Profesores")
+    .update({ nombre, correo, celular })
+    .eq("codigo", codigo); 
+  if (error) {
+    console.error("Error al actualizar profesor:", error);
+  }
+  alert("✅ Profesor actualizado correctamente.");
+  cargarProfesores();
+}
+
 
 cargarProfesores();

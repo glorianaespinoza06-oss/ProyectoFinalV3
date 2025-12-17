@@ -13,6 +13,7 @@ const inputDireccion = document.getElementById("direccion");
 const btnSave = document.getElementById("btn-save");
 const btnCancel = document.getElementById("btn-cancel");
 const statusDiv = document.getElementById("status");
+const tituloForm = document.getElementById("form-title");
 let editando = false;
 let listaEstudiantes = document.getElementById("tablaEstudiantes");
 //========================
@@ -20,12 +21,18 @@ let listaEstudiantes = document.getElementById("tablaEstudiantes");
 //========================
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
+  const codigo = inputId.value;
   const nombre = inputNombre.value.trim();
   const correo = inputCorreo.value.trim();
   const celular = inputCelular.value.trim();
   const direccion = inputDireccion.value.trim();
 
   if (editando) {
+    await actualizarEstudiante(codigo, nombre, correo, celular, direccion);
+     editando = false;
+    tituloForm.textContent = "Registrar";
+    btnSave.textContent = "Guardar";
+    btnCancel.style.display = "none";
   } else {
     await crearEstudiante(nombre, correo, celular, direccion);
   }
@@ -44,6 +51,14 @@ listaEstudiantes.addEventListener("click", async (e) => {
     await editarEstudiantes(id);
     cargarEstudiantes();
   }
+});
+
+btnCancel.addEventListener("click", () => {
+  form.reset();
+  editando = false;
+  tituloForm.textContent = "Registrar";
+  btnSave.textContent = "Guardar";
+  btnCancel.style.display = "none";
 });
 
 //===================================
@@ -97,6 +112,19 @@ async function crearEstudiante(nombre, email, celular, direccion) {
   cargarEstudiantes();
 }
 
+async function actualizarEstudiante(idEstudiante, nombre, email, celular, direccion) {
+   const { error } = await supabase
+    .from("Estudiantes")
+    .update({ nombre, email, celular, direccion })
+    .eq("idEstudiante", idEstudiante);
+
+  if (error) {
+    console.error("Error al actualizar estudiante:", error);
+  }
+  alert("✅ Estudiante actualizado correctamente.");
+  cargarEstudiantes();
+}
+
 async function eliminarEstudiante(idEstudiante) {
   // Mostrar mensaje de confirmación
   const confirmar = confirm("¿Está seguro de que desea eliminar este estudiante?");
@@ -130,10 +158,16 @@ let { data: estudiante, error } = await supabase
     console.error(error);
   }
    // Cargar en HTML
+   document.getElementById("idEstudiante").value = estudiante.idEstudiante;
     document.getElementById("nombre").value = estudiante.nombre;
     document.getElementById("correo").value = estudiante.email;
     document.getElementById("celular").value = estudiante.celular;
     document.getElementById("direccion").value = estudiante.direccion;
+
+  editando = true;
+  tituloForm.textContent = "Editar estudiante";
+  btnSave.textContent = "Actualizar";
+  btnCancel.style.display = "inline-block";
 }
 
 

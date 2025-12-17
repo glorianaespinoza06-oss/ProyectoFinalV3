@@ -11,6 +11,7 @@ const inputIdCarrera = document.getElementById("cmbCarreras").value;
 const btnSave = document.getElementById("btn-save");
 const btnCancel = document.getElementById("btn-cancel");
 const statusDiv = document.getElementById("status");
+const tituloForm = document.getElementById("form-title");
 let editando = false;
 let listaMatriculas = document.getElementById("tablaMatriculas");
 //========================
@@ -28,6 +29,19 @@ form.addEventListener("submit", async (e) => {
   const periodo = parseInt(document.getElementById("cmbPeriodo").value);
   const idCurso = parseInt(document.getElementById("cmbCursos").value);
   if (editando) {
+    await actualizarMatricula(inputId,
+      idEstudiante,
+      idCarrera,
+      creditos,
+      idNivel,
+      año,
+      periodo,
+      idCurso
+    );   
+    editando = false; 
+    tituloForm.textContent = "Registrar";
+    btnSave.textContent = "Guardar";
+    btnCancel.style.display = "none";
   } else {
     await crearMatricula(
       idEstudiante,
@@ -95,6 +109,7 @@ async function cargarMatriculas() {
             <td>${carrera}</td>
             <td>${curso}</td>
             <td>${matricula.creditos}</td>
+            <td>${nivel}</td>
             <td>${periodo}</td>
             <td>${año}</td>
             <td>
@@ -138,6 +153,15 @@ async function crearMatricula(
   cargarMatriculas();
 }
 
+btnCancel.addEventListener("click", () => {
+  form.reset();
+  editando = false;
+  tituloForm.textContent = "Registrar";
+  btnSave.textContent = "Guardar";
+  btnCancel.style.display = "none";
+});
+
+
 async function eliminarMatriculas(idMatricula) {
   // Mostrar mensaje de confirmación
   const confirmar = confirm(
@@ -162,6 +186,18 @@ async function eliminarMatriculas(idMatricula) {
   }
 }
 
+async function actualizarMatricula(idMatricula, idEstudiante, idCarrera, creditos, idNivel, año, periodo, idCurso) {
+   const { error } = await supabase
+    .from("Matriculas")
+    .update({ idEstudiante, idCarrera, creditos, idNivel, año, periodo, idCurso })
+    .eq("idMatricula", idMatricula);
+  if (error) {
+    console.error("Error al actualizar matrícula:", error);
+  }
+  alert("✅ Matrícula actualizada correctamente.");
+  cargarMatriculas();
+}
+
 async function editarMatriculas(codigo) {
   let { data: matricula, error } = await supabase
     .from("Matriculas")
@@ -177,6 +213,14 @@ async function editarMatriculas(codigo) {
   document.getElementById("cmbCarreras").value = matricula.idCarrera;
   document.getElementById("cmbEstudiantes").value = matricula.idEstudiante;
   document.getElementById("cmbNivelAcademico").value = matricula.idNivel;
+  document.getElementById("cmbAño").value = matricula.año;
+  document.getElementById("cmbPeriodo").value = matricula.periodo;
+    document.getElementById("cmbCursos").value = matricula.idCurso;
+
+   editando = true;
+  tituloForm.textContent = "Editar estudiante";
+  btnSave.textContent = "Actualizar";
+  btnCancel.style.display = "inline-block";
 }
 
 async function cargarCarreras() {
@@ -348,8 +392,29 @@ async function obtenerAñosPorID(codigo) {
   return año.descripcion;
 }
 
+async function obtenerNivelPorID(idNivel) {
+  const { data, error } = await supabase
+    .from("NivelAcademico")
+    .select("descripcion")
+    .eq("idNivel", idNivel)
+    .single();
+
+  if (error) {
+    console.error(error);
+    return "";
+  }
+
+  return data.descripcion;
+}
+
+async function cargarNiveles() {
+  const { data, error } = await supabase.from("NivelAcademico").select("*");
+  if (!error) cargarCombo("cmbNivelAcademico", data, "idNivel", "descripcion");
+}
+
 cargarMatriculas();
 cargarCarreras();
 cargarEstudiantes();
 cargarAños();
 cargarPeriodos();
+cargarNiveles();
